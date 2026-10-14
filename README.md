@@ -1,178 +1,90 @@
-# Family Sync - Skylight-like Family Organizer
+# Family Sync
 
-A React Native app built with Expo and TypeScript that provides family organization features similar to Skylight. The app includes Calendar, Chores, and Lists modules with profile-based color coding and responsive layouts for phones and tablets.
+Expo app (`family-sync` in `package.json`, `Family-Sync` in `app.json`) for family calendars, chores, lists, profiles, rewards, and meals. UI code lives under `src/`. Seed data and edits stay in a Zustand store in memory for the process lifetime.
 
-## Features
+A file-by-file description of screens, routes, and store actions is in [docs/STATE.md](docs/STATE.md). Notes for agents are in [AGENTS.md](AGENTS.md).
 
-### ✅ Fully Implemented
-- **Profiles Management**: Color-coded family member profiles with role-based organization and filtering
-- **Lists Module**: Complete CRUD operations for shopping, to-do, and custom lists with item management
-- **Chores Module**: Time-segmented chores (morning/midday/evening/any) with completion tracking and celebrations
-- **Calendar Module**: Day/Week/Month views with profile color coding and navigation
-- **Responsive Design**: Adaptive layouts for phones and tablets with proper touch targets
-- **State Management**: Zustand store with comprehensive TypeScript interfaces
-- **Navigation**: React Navigation with tab and stack navigation
-- **Mock Data**: Pre-populated with sample profiles, events, chores, and lists
+## Stack
 
-### 🚧 Future Enhancements
-- **Schedule View**: List-style calendar view for comprehensive event overview
-- **Event Detail Screens**: Full CRUD operations for events with recurrence editing
-- **Chore Detail Screens**: Advanced chore management and creation
-- **Profile Detail Screens**: Individual profile management and statistics
+From `package.json` and `app.json`:
 
-## Tech Stack
+- Expo `~54.0.6`, React `19.1.0`, React Native `0.81.4`, TypeScript `~5.9.2`
+- React Navigation `7` (`native`, `bottom-tabs`, `stack`)
+- Zustand `^5.0.8`
+- `@supabase/supabase-js` `^2.57.4` (meals browser)
+- `date-fns` `^4.1.0`
+- `expo-dev-client` `~6.0.12`
+- ESLint `^9.35.0` and Prettier `^3.6.2`
 
-- **React Native** with Expo
-- **TypeScript** for type safety
-- **Zustand** for state management
-- **React Navigation** for navigation
-- **date-fns** for date handling
-- **React Native Reanimated** for animations
-- **ESLint & Prettier** for code quality
+`package.json` has no `engines` field. `app.json` sets `newArchEnabled` to `true`, portrait orientation, iOS `supportsTablet`, bundle id `com.anonymous.Family-Sync`, and Android `edgeToEdgeEnabled`.
 
-## Project Structure
+## Layout
 
 ```
-src/
-├── types/           # TypeScript interfaces and types
-├── store/           # Zustand store configuration
-├── screens/         # Screen components
-│   ├── Calendar/    # Calendar module screens
-│   ├── Chores/      # Chores module screens
-│   ├── Lists/       # Lists module screens
-│   └── Profiles/    # Profiles module screens
-├── navigation/      # Navigation configuration
-└── utils/           # Utility functions and helpers
+index.ts                 # registerRootComponent(App)
+App.tsx                  # re-exports src/App
+src/App.tsx              # providers and AppNavigator
+src/navigation/          # tabs and stack
+src/screens/             # Calendar, Chores, Lists, Profiles, Rewards, Meals
+src/components/          # MealBrowser, MealDetailModal
+src/store/index.ts       # Zustand store and seed data
+src/types/index.ts
+src/services/            # recipe and meal API wrappers
+src/config/              # Supabase client and environment.ts
+src/utils/helpers.ts
+assets/                  # icon, splash, adaptive icon, favicon
 ```
 
-## Data Models
+## Setup
 
-### Profile
-- `id`: Unique identifier
-- `name`: Display name (Jordan, Gemma, Esmé)
-- `role`: 'parent' or 'child'
-- `color`: Hex color code for visual identification
+1. Clone and enter the repo:
 
-### Event
-- `id`: Unique identifier
-- `title`: Event name
-- `start/end`: ISO date strings
-- `allDay`: Boolean flag
-- `location`: Optional location
-- `notes`: Optional notes
-- `profileIds`: Array of assigned profile IDs
-- `recurrence`: Recurrence pattern configuration
-
-### Chore
-- `id`: Unique identifier
-- `title`: Chore description
-- `profileIds`: Array of assigned profile IDs
-- `startDate`: Start date for recurrence
-- `timeOfDay`: 'morning' | 'midday' | 'evening' | 'any'
-- `scheduledTime`: Optional time for timed chores
-- `type`: 'timed' | 'allDay' | 'anytime'
-- `recurrence`: Recurrence pattern
-- `completedBy`: Array of completion records
-- `rewardStars`: Optional reward system (future feature)
-
-### List & ListItem
-- `List`: Container with name, kind, color, and item count
-- `ListItem`: Individual items with title, checked status, and optional metadata
-
-## Getting Started
-
-### Prerequisites
-- Node.js (v16 or later)
-- Expo CLI
-- iOS Simulator or Android Emulator (or physical device)
-
-### Installation
-
-1. Clone the repository:
 ```bash
-git clone <repository-url>
+git clone https://github.com/Jordan-Ryan/Family-Sync.git
 cd Family-Sync
 ```
 
 2. Install dependencies:
+
 ```bash
 npm install
 ```
 
-3. Start the development server:
-```bash
-npm start
-```
+There is no `.env` file and no `.env.example`. `.gitignore` ignores `.env*.local`, and `src/config/environment.ts` does not read `process.env`. The Supabase URL and anon key are string literals in that file. The meals code uses them as-is.
 
-4. Run on your preferred platform:
-```bash
-npm run ios     # iOS Simulator
-npm run android # Android Emulator
-npm run web     # Web browser
-```
+## Scripts
 
-## Development
+Defined in `package.json`:
 
-### Code Quality
-The project uses ESLint and Prettier for consistent code formatting:
+| Script | Command |
+| --- | --- |
+| `npm start` | `expo start` |
+| `npm run android` | `expo run:android` |
+| `npm run ios` | `expo run:ios` |
+| `npm run web` | `expo start --web` |
+| `npm run lint` | `eslint src --ext .ts,.tsx` |
+| `npm run lint:fix` | `eslint src --ext .ts,.tsx --fix` |
+| `npm run format` | `prettier --write src/**/*.{ts,tsx}` |
+| `npm run type-check` | `tsc --noEmit` |
 
-```bash
-npm run lint     # Check for linting errors
-npm run lint:fix # Fix auto-fixable linting errors
-```
+`tsconfig.json` extends `expo/tsconfig.base` and sets `strict` to `true`.
 
-### State Management
-The app uses Zustand for state management with TypeScript interfaces. The store is located in `src/store/index.ts` and includes:
+`/ios` and `/android` are listed in `.gitignore` and are not in this tree. `npm run ios` and `npm run android` are the Expo prebuild/run commands above.
 
-- Profile management (CRUD operations)
-- Event management with recurrence support
-- Chore management with completion tracking
-- List and item management
-- Filter and feature flag management
+`install-expo-go.sh` is a macOS shell script. It looks up a booted simulator named `iPad Pro 13-inch (M4)` with `xcrun simctl`, opens the Expo Go App Store page on that simulator, and prints `exp://192.168.1.101:8081`.
 
-### Responsive Design
-The app includes responsive utilities in `src/utils/helpers.ts`:
+There is no test script and no test files in the tree. There is no `LICENSE` file.
 
-- `isTablet()`: Detects tablet devices
-- `getResponsiveLayout()`: Returns layout configuration based on screen size
-- Adaptive spacing, font sizes, and touch targets
+## Meals data
 
-## Mock Data
+`MealBrowser` calls `mealApiService` (`src/services/mealApi.ts`), which calls `supabaseMealApiService`, which calls `RecipeService` (`src/services/recipeService.ts`). Those reads use the Supabase client in `src/config/supabase.ts` and the table name `recipes_foodcom`.
 
-The app includes pre-populated mock data:
+The `Database` type in `src/config/supabase.ts` also describes `recipes` and `categories`. `recipeService.ts` does not query those two tables. This repo has no SQL migrations. Selected meals are copied into the Zustand `meals` and `mealPlans` arrays, which start empty.
 
-- **3 Profiles**: Jordan (parent, blue), Gemma (parent, green), Esmé (child, orange)
-- **Sample Events**: School runs, soccer practice, family movie night, weekend trip
-- **Sample Chores**: Morning/evening routines, lawn mowing, dishes
-- **Sample Lists**: Shopping, To-Dos, Holiday packing
+## Seed data
 
-## Future Features
+`src/store/index.ts` initializes the store with in-memory arrays. The store is created with `zustand`'s `create` and has no persist middleware. `package.json` does not depend on AsyncStorage.
 
-### Plus Features (Feature Flagged)
-- Sidekick AI imports (emails, PDFs, photos, voice)
-- Star rewards system
-- External calendar sync
-- Meal planning integration
+Seeded profiles are Jordan (`parent`, `#2F80ED`), Gemma (`parent`, `#27AE60`), and Esmé (`child`, `#F2994A`). The same file seeds events, chores, lists, list items, rewards, and one reward redemption. `meals` and `mealPlans` start as empty arrays.
 
-### Planned Enhancements
-- Offline-first architecture
-- Real-time synchronization
-- Advanced recurrence patterns
-- Weather integration
-- Export/import functionality
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Acknowledgments
-
-Inspired by Skylight's family organization approach with profile-based color coding and comprehensive family management features.
+`featureFlags` in that initial state are `plusFeatures: false`, `sidekick: false`, and `rewards: true`. No screen reads `featureFlags`. The Rewards tab is registered in `src/navigation/AppNavigator.tsx` with the other tabs.
